@@ -1,0 +1,41 @@
+{
+  "model_name": "Random Forest Regressor",
+  "model_version": "v1.0.0",
+  "framework": "scikit-learn",
+  "training_date": "2026-09-16",
+  "reference_dataset_size": 40958,
+  "reference_window_start": "2012-10-02 09:00:00",
+  "reference_window_end": "2018-01-25 19:00:00",
+  "features": [
+    "hour",
+    "day",
+    "month",
+    "weekday",
+    "is_rush"
+  ],
+  "target": "traffic_volume",
+  "hyperparameters": {
+    "n_estimators": 200,
+    "max_depth": 10,
+    "random_state": 42
+  },
+  "validation_metrics": {
+    "random_split_85_15": {
+      "MAE": 257.8632,
+      "MSE": 188481.31,
+      "RMSE": 434.1443,
+      "R2": 0.952749
+    },
+    "time_aware_split_85_15": {
+      "MAE": 264.1283,
+      "MSE": 236940.51,
+      "RMSE": 486.7654,
+      "R2": 0.939804
+    }
+  },
+  "monitoring_thresholds": {
+    "psi_no_drift": 0.1,
+    "psi_moderate_drift": 0.25,
+    "rmse_alert_threshold": 550.0
+  }
+}

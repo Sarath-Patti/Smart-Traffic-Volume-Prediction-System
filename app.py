@@ -117,7 +117,7 @@ def main_app():
 
     st.markdown("### Smart traffic Volume prediction using Machine Learning 🚀")
 
-    tab1, tab2, tab3 = st.tabs(["🔮 Prediction", "📊 Analytics", "📁 Batch"])
+    tab1, tab2, tab3, tab4 = st.tabs(["🔮 Prediction", "📊 Analytics", "📁 Batch", "🛡️ Monitoring"])
 
     # ===================== TAB 1 =====================
     with tab1:
@@ -140,7 +140,7 @@ def main_app():
         if st.button("🚀 Predict Now"):
 
             with st.spinner("Analyzing traffic patterns... ⏳"):
-                time.sleep(1)
+                time.sleep(0.5)
 
                 features = np.array([[hour, day, month, weekday, int(is_rush)]])
                 prediction = model.predict(features)[0]
@@ -149,9 +149,9 @@ def main_app():
 
             # 🔥 smoother animation
             placeholder = st.empty()
-            for i in np.linspace(1, prediction, 100):
+            for i in np.linspace(1, prediction, 50):
                 placeholder.metric("🚗 Traffic Volume", round(i, 2))
-                time.sleep(0.01)
+                time.sleep(0.005)
 
             placeholder.metric("🚗 Traffic Volume", round(prediction, 2))
 
@@ -161,6 +161,17 @@ def main_app():
                 st.warning("🟡 Moderate Traffic")
             else:
                 st.error("🔴 Heavy Traffic")
+
+            # Log prediction to database
+            try:
+                from monitoring.monitor import PredictionLogger
+                logger = PredictionLogger()
+                df_log = pd.DataFrame([{
+                    "hour": hour, "day": day, "month": month, "weekday": weekday, "is_rush": int(is_rush)
+                }])
+                logger.log_predictions(df_log, [prediction])
+            except Exception as e:
+                pass
 
     # ===================== TAB 2 =====================
     with tab2:
@@ -172,7 +183,7 @@ def main_app():
                 "Importance": model.feature_importances_
             })
 
-            fig = px.bar(df_imp, x="Feature", y="Importance", color="Importance")
+            fig = px.bar(df_imp, x="Feature", y="Importance", color="Importance", title="Random Forest Feature Importances")
             st.plotly_chart(fig, use_container_width=True)
 
         hours = list(range(24))
@@ -180,7 +191,8 @@ def main_app():
         preds = model.predict(sample)
 
         fig = go.Figure()
-        fig.add_trace(go.Scatter(x=hours, y=preds, mode='lines+markers'))
+        fig.add_trace(go.Scatter(x=hours, y=preds, mode='lines+markers', name="Predicted Volume"))
+        fig.update_layout(title="Diurnal Prediction Curve (24 Hours)", xaxis_title="Hour of Day", yaxis_title="Predicted Volume")
 
         st.plotly_chart(fig, use_container_width=True)
 
@@ -219,8 +231,104 @@ def main_app():
             else:
                 st.error("CSV must contain required columns")
 
+    # ===================== TAB 4 =====================
+    with tab4:
+        st.subheader("🛡️ Model Drift & Performance Monitoring")
+        st.info("ℹ️ **Historical Simulation / Demonstration Mode**: Real-time evaluation of data drift (PSI), prediction drift, and model performance metrics.")
+
+        try:
+            from monitoring.monitor import (
+                FeatureDriftMonitor, PredictionDriftMonitor, PerformanceMonitor,
+                ModelAlertManager, SyntheticDriftGenerator, generate_monitoring_report
+            )
+            import json
+
+            ref_path = "monitoring/reference_data.csv"
+            if not os.path.exists(ref_path):
+                st.error("Reference data file missing.")
+            else:
+                ref_df = pd.read_csv(ref_path)
+
+                sim_mode = st.radio(
+                    "Select Monitoring Dataset Stream:",
+                    ["Normal Historical Holdout (2018 Test Data)", "Synthetic Feature Drift Test (Simulated Peak Shift)"],
+                    horizontal=True
+                )
+
+                # Prepare test batch
+                df_full = pd.read_csv("datafile.csv").drop_duplicates()
+                df_full['date_time'] = pd.to_datetime(df_full['date_time'], dayfirst=True)
+                df_full['hour'] = df_full['date_time'].dt.hour
+                df_full['day'] = df_full['date_time'].dt.day
+                df_full['month'] = df_full['date_time'].dt.month
+                df_full['weekday'] = df_full['date_time'].dt.weekday
+                df_full['is_rush'] = df_full['hour'].apply(lambda x: 1 if x in [7,8,9,17,18,19] else 0)
+
+                # Get holdout set
+                split_idx = int(len(df_full) * 0.85)
+                current_df = df_full.iloc[split_idx:].copy().sample(n=1000, random_state=42)
+
+                if "Synthetic" in sim_mode:
+                    current_df = SyntheticDriftGenerator.generate_drifted_sample(current_df, target_hour=8, force_rush=1)
+
+                report = generate_monitoring_report(ref_df, current_df, model, rmse_threshold=550.0, dataset_label=sim_mode)
+
+                # 1. ALERT BANNER
+                st.markdown("### 1. Model Health & Alert Status")
+                alert = report["alert"]
+                if alert and alert["Alert Triggered"]:
+                    st.error(f"🚨 **STATUS: {alert['Status']}**\n\n{alert['Message']}")
+                elif alert:
+                    st.success(f"✅ **STATUS: {alert['Status']}**\n\n{alert['Message']}")
+
+                # 2. FEATURE DRIFT TABLE
+                st.markdown("### 2. Feature Distribution Drift (PSI Metric)")
+                st.caption("PSI Rule: <0.10 (No Drift / Stable), 0.10-0.25 (Moderate Shift), >=0.25 (Significant Drift)")
+                drift_df = pd.DataFrame(report["feature_drift"])
+                st.dataframe(drift_df, use_container_width=True)
+
+                # 3. PREDICTION DRIFT & PERFORMANCE
+                col1, col2 = st.columns(2)
+
+                with col1:
+                    st.markdown("### 3. Prediction Drift")
+                    p_drift = report["prediction_drift"]
+                    st.metric("Prediction PSI", p_drift["Prediction PSI"], delta=p_drift["Prediction Drift Status"])
+                    st.write(f"**Reference Mean Volume**: {p_drift['Reference Mean']:.2f}")
+                    st.write(f"**Current Mean Volume**: {p_drift['Current Mean']:.2f}")
+                    st.write(f"**Wasserstein Distance**: {p_drift['Wasserstein Distance']:.2f}")
+
+                with col2:
+                    st.markdown("### 4. Model Performance (Evaluated)")
+                    perf = report["performance_metrics"]
+                    if perf:
+                        st.metric("Monitored RMSE", perf["RMSE"])
+                        st.metric("Monitored R² Score", perf["R2 Score"])
+                        st.metric("Monitored MAE", perf["MAE"])
+                    else:
+                        st.warning("No ground-truth actuals available for performance calculation.")
+
+                # 5. MODEL METADATA
+                st.markdown("### 5. Model Version & Metadata")
+                meta = report["model_metadata"]
+                if meta:
+                    col_m1, col_m2, col_m3 = st.columns(3)
+                    with col_m1:
+                        st.write(f"**Model Name**: {meta.get('model_name', 'Random Forest')}")
+                        st.write(f"**Version**: {meta.get('model_version', 'v1.0.0')}")
+                    with col_m2:
+                        st.write(f"**Training Date**: {meta.get('training_date', '2026-09-16')}")
+                        st.write(f"**Ref Dataset Size**: {meta.get('reference_dataset_size', 40958)} rows")
+                    with col_m3:
+                        st.write(f"**Features**: `{meta.get('features', [])}`")
+                        st.write(f"**Hyperparameters**: `{meta.get('hyperparameters', {})}`")
+
+        except Exception as e:
+            st.error(f"Error initializing Monitoring System: {e}")
+
 # ---------- ROUTING ----------
 if not st.session_state.logged_in:
     auth_screen()
 else:
     main_app()
+
