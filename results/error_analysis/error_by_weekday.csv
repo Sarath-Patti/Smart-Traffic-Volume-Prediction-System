@@ -1,0 +1,8 @@
+Segment Type,Segment Value,Sample Count (N),MAE,RMSE,Mean Bias Error,Bias Direction
+Day of Week,0,1038,288.49,589.37,-82.79,Overprediction (Pred > Actual)
+Day of Week,1,1103,214.83,355.96,-48.79,Unbiased (Near Zero)
+Day of Week,2,974,216.55,459.22,16.02,Unbiased (Near Zero)
+Day of Week,3,971,193.66,268.05,48.41,Unbiased (Near Zero)
+Day of Week,4,1038,199.37,293.46,21.68,Unbiased (Near Zero)
+Day of Week,5,1083,352.84,607.85,-61.52,Overprediction (Pred > Actual)
+Day of Week,6,1022,245.22,414.68,-33.04,Unbiased (Near Zero)

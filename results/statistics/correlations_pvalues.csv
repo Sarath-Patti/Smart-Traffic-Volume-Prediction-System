@@ -1,0 +1,10 @@
+Feature,Pearson r,Pearson p-value,Spearman r,Spearman p-value,Statistically Significant (alpha=0.01)
+hour,0.3523,0.0000e+00,0.3443,0.0000e+00,True
+is_rush,0.34,0.0000e+00,0.3356,0.0000e+00,True
+weekday,-0.1496,5.1720e-239,-0.1514,7.9926e-245,True
+temp,0.1302,4.5598e-181,0.1327,2.7319e-188,True
+clouds_all,0.0671,2.8935e-49,0.0568,8.9937e-36,True
+day,-0.0078,0.0885,-0.0082,0.072,False
+rain_1h,0.0047,0.3007,0.0048,0.2958,False
+month,-0.0025,0.5862,-0.0018,0.6911,False
+snow_1h,0.0007,0.8716,-0.0052,0.2549,False

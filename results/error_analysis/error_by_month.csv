@@ -1,0 +1,10 @@
+Segment Type,Segment Value,Sample Count (N),MAE,RMSE,Mean Bias Error,Bias Direction
+Month of Year,1,165,250.67,334.5,212.07,Underprediction (Actual > Pred)
+Month of Year,2,804,273.06,441.26,-56.4,Overprediction (Pred > Actual)
+Month of Year,3,867,244.7,425.26,21.02,Unbiased (Near Zero)
+Month of Year,4,902,469.59,757.69,-169.82,Overprediction (Pred > Actual)
+Month of Year,5,871,225.89,418.47,14.82,Unbiased (Near Zero)
+Month of Year,6,874,172.45,250.18,44.42,Unbiased (Near Zero)
+Month of Year,7,866,216.97,476.37,-82.97,Overprediction (Pred > Actual)
+Month of Year,8,946,152.22,219.54,47.09,Unbiased (Near Zero)
+Month of Year,9,934,213.15,389.63,-36.56,Unbiased (Near Zero)

@@ -117,7 +117,9 @@ def main_app():
 
     st.markdown("### Smart traffic Volume prediction using Machine Learning 🚀")
 
-    tab1, tab2, tab3, tab4 = st.tabs(["🔮 Prediction", "📊 Analytics", "📁 Batch", "🛡️ Monitoring"])
+    tab1, tab2, tab3, tab4, tab5 = st.tabs([
+        "🔮 Prediction", "📊 Analytics", "📁 Batch", "🛡️ Monitoring", "📈 DS Analysis"
+    ])
 
     # ===================== TAB 1 =====================
     with tab1:
@@ -325,6 +327,104 @@ def main_app():
 
         except Exception as e:
             st.error(f"Error initializing Monitoring System: {e}")
+
+    # ===================== TAB 5 =====================
+    with tab5:
+        st.subheader("📈 Data Science & Advanced Analytics")
+        st.info("ℹ️ **Advanced DS Module**: Explore SQL analytical queries, empirical statistical tests, time-series forecasting benchmarks, and segmented error analysis.")
+
+        sub_tab1, sub_tab2, sub_tab3, sub_tab4 = st.tabs([
+            "🗄️ SQL Analytics", "📐 Statistical Analysis", "⏱️ Demand Forecasting", "🔍 Operational Error Analysis"
+        ])
+
+        with sub_tab1:
+            st.markdown("### 🗄️ SQLite Analytical Views & Queries")
+            st.caption("Demonstrating relational SQL analytical queries with window functions, CTEs, and aggregations.")
+            try:
+                if os.path.exists("traffic_analytics.db"):
+                    conn = sqlite3.connect("traffic_analytics.db")
+                    views = [
+                        "v_daily_traffic_summary", "v_hourly_traffic_summary",
+                        "v_day_type_comparison", "v_rush_hour_summary",
+                        "v_monthly_traffic_trends", "v_rolling_24h_traffic",
+                        "v_peak_traffic_rankings", "v_traffic_volume_buckets",
+                        "v_weather_impact_summary"
+                    ]
+                    selected_view = st.selectbox("Select SQL View:", views)
+                    df_view = pd.read_sql_query(f"SELECT * FROM {selected_view} LIMIT 100", conn)
+                    st.dataframe(df_view, use_container_width=True)
+                    st.caption(f"Showing top rows from `{selected_view}` in SQLite `traffic_analytics.db`.")
+                    conn.close()
+                else:
+                    st.warning("SQL Database `traffic_analytics.db` not found. Run `python run_analysis.py` to generate.")
+            except Exception as e:
+                st.error(f"Error loading SQL analytics: {e}")
+
+        with sub_tab2:
+            st.markdown("### 📐 Empirical Statistical Hypothesis Testing")
+            try:
+                from analysis.statistical_analysis import StatisticalAnalyzer
+                df_data = pd.read_csv("datafile.csv").drop_duplicates()
+                analyzer = StatisticalAnalyzer(df_data)
+
+                col1, col2 = st.columns(2)
+                with col1:
+                    st.markdown("#### 1. Rush vs Non-Rush Hour Test")
+                    rush_res = analyzer.test_rush_vs_non_rush()
+                    st.write(f"**Rush Mean Volume**: {rush_res['rush_mean']:.2f}")
+                    st.write(f"**Non-Rush Mean Volume**: {rush_res['non_rush_mean']:.2f}")
+                    st.write(f"**Welch's t-statistic**: {rush_res['t_statistic']:.4f}")
+                    st.write(f"**p-value**: {rush_res['p_value']:.4e}")
+                    st.write(f"**Cohen's d (Effect Size)**: {rush_res['cohen_d']:.4f}")
+
+                with col2:
+                    st.markdown("#### 2. Weekday vs Weekend Test")
+                    day_res = analyzer.test_weekday_vs_weekend()
+                    st.write(f"**Weekday Mean Volume**: {day_res['weekday_mean']:.2f}")
+                    st.write(f"**Weekend Mean Volume**: {day_res['weekend_mean']:.2f}")
+                    st.write(f"**Welch's t-statistic**: {day_res['t_statistic']:.4f}")
+                    st.write(f"**p-value**: {day_res['p_value']:.4e}")
+                    st.write(f"**Cohen's d (Effect Size)**: {day_res['cohen_d']:.4f}")
+
+                st.markdown("#### 3. Correlation with Target (Traffic Volume)")
+                corr_df = pd.DataFrame(analyzer.run_correlation_analysis())
+                st.dataframe(corr_df, use_container_width=True)
+
+            except Exception as e:
+                st.error(f"Error running statistical analysis: {e}")
+
+        with sub_tab3:
+            st.markdown("### ⏱️ Time-Series Demand Forecasting")
+            st.caption("Comparing Naive Lag Baselines against a Time-Aware Random Forest Forecasting Model (Strict chronologically engineered lag features, no data leakage).")
+            try:
+                if os.path.exists("results/forecasting/forecasting_comparison.csv"):
+                    df_fc = pd.read_csv("results/forecasting/forecasting_comparison.csv")
+                    st.dataframe(df_fc, use_container_width=True)
+
+                    fig = px.bar(df_fc, x="Model", y="R2 Score", color="RMSE", title="Forecasting Model Comparison (R² Score)")
+                    st.plotly_chart(fig, use_container_width=True)
+                else:
+                    st.warning("Forecasting results missing. Run `python run_analysis.py` to generate.")
+            except Exception as e:
+                st.error(f"Error loading forecasting analysis: {e}")
+
+        with sub_tab4:
+            st.markdown("### 🔍 Segmented Operational Error Analysis")
+            st.caption("Dissecting model residuals across operational dimensions (traffic volume buckets, hour of day, rush status) to detect bias and error patterns.")
+            try:
+                if os.path.exists("results/error_analysis/error_by_volume_bucket.csv"):
+                    vol_err = pd.read_csv("results/error_analysis/error_by_volume_bucket.csv")
+                    st.markdown("#### Performance by Volume Bucket")
+                    st.dataframe(vol_err, use_container_width=True)
+
+                    if os.path.exists("results/error_analysis/error_by_hour.csv"):
+                        hr_err = pd.read_csv("results/error_analysis/error_by_hour.csv")
+                        fig_err = px.line(hr_err, x="hour", y="MAE", title="Mean Absolute Error (MAE) by Hour of Day")
+                        st.plotly_chart(fig_err, use_container_width=True)
+                else:
+                    st.warning("Error analysis results missing. Run `python run_analysis.py` to generate.")
+            except Exception as e:
+                st.error(f"Error loading operational error analysis: {e}")
 
 # ---------- ROUTING ----------
 if not st.session_state.logged_in:

@@ -1,0 +1,4 @@
+Volume Bucket,Sample Count (N),MAE,RMSE,Mean Bias Error,Bias Direction
+Low (<2000),2275,182.69,507.48,-132.34,Overprediction (Pred > Actual)
+Moderate (2000-5000),3277,283.16,452.73,-36.96,Unbiased (Near Zero)
+Heavy (>=5000),1677,257.31,330.53,159.3,Underprediction (Actual > Pred)

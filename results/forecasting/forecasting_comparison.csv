@@ -1,0 +1,4 @@
+Model Type,Model Name,MAE,MSE,RMSE,R2 Score
+Baseline,Naive Prev-Hour Baseline (Lag 1h),485.9545,548216.58,740.4165,0.860798
+Baseline,Naive Prev-Day Baseline (Lag 24h),1563.6219,4877813.71,2208.5773,-0.238566
+ML Forecasting Model,Random Forest Forecasting (Temporal + Lags),158.1367,57783.12,240.3812,0.985328

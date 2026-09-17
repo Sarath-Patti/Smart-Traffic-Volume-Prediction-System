@@ -1,289 +1,235 @@
-# 🚦 Smart Traffic Volume Prediction System
+# 🚦 Smart Traffic Volume Prediction & Analytics System
 
-A full-stack Machine Learning application that predicts traffic volume using historical traffic data and temporal features. The project compares multiple regression models, deploys the best-performing model through an interactive Streamlit dashboard, and supports user authentication, analytics, and batch prediction.
-
----
-
-## 📌 Overview
-
-Traffic congestion is one of the major challenges faced by modern cities. Accurate traffic volume prediction helps transportation authorities optimize traffic signal timings, reduce congestion, and improve urban mobility.
-
-This project builds a machine learning pipeline that:
-
-- Cleans and preprocesses traffic data
-- Performs feature engineering
-- Trains multiple regression models
-- Selects the best model based on evaluation metrics
-- Deploys the model using Streamlit
-- Supports secure user authentication
-- Allows single and batch predictions
+An end-to-end Data Science and Machine Learning engineering project built for production-grade traffic volume prediction, time-series forecasting, statistical hypothesis testing, SQL relational analytics, model drift monitoring, and operational error breakdown.
 
 ---
 
-## ✨ Features
+## 📌 1. Problem Statement
 
-- 🔐 User Registration & Login
-- 🚗 Traffic Volume Prediction
-- 📊 Interactive Traffic Analytics
-- 📁 Batch Prediction using CSV Upload
-- 🌲 Random Forest Based Prediction Model
-- 📈 Feature Importance Visualization
-- 💾 SQLite Database for Authentication
-- 🔒 Password Hashing using bcrypt
-- ⚡ Fast and Lightweight Streamlit Interface
+Urban traffic congestion creates severe economic loss, increased fuel consumption, and environmental degradation. Accurate hourly traffic volume prediction empowers smart city traffic management systems to optimize signal timing, manage peak loads, and plan highway infrastructure.
 
----
-
-## 🏗️ System Architecture
-
-```
-Traffic Dataset
-      │
-      ▼
-Data Preprocessing
-      │
-      ▼
-Feature Engineering
-      │
-      ▼
-Model Training
-      │
-      ▼
-Model Evaluation
-      │
-      ▼
-Best Model Selection
-      │
-      ▼
-Streamlit Web Application
-      │
-      ▼
-Prediction • Analytics • Batch Processing
-```
+This project delivers a multi-stage Data Science platform that covers the full lifecycle:
+1. **Relational Analytics**: SQL window functions and analytical views.
+2. **Statistical Inference**: Parametric and non-parametric hypothesis testing with effect size estimation.
+3. **Machine Learning & Time-Aware Validation**: Random Forest baseline model evaluated under both random holdout and strict chronological splits.
+4. **Demand Forecasting**: Short-term time-series forecasting using chronologically engineered lag and rolling window features.
+5. **Model Monitoring**: Real-time distribution shift (Population Stability Index - PSI) and performance drift detection.
+6. **Operational Error Breakdown**: Segmented residual analysis to identify structural prediction bias across peak and off-peak periods.
 
 ---
 
-## 🧠 Machine Learning Pipeline
+## 📊 2. Data Overview & Data Hygiene
 
-### Data Preprocessing
+The project analyzes historical hourly traffic measurements from the Interstate 94 (I-94) westbound corridor in Minneapolis-St. Paul, Minnesota (October 2012 to September 2018).
 
-- Missing value handling
-- Duplicate removal
-- Datetime conversion
-- Data validation
-
-### Feature Engineering
-
-Features extracted from datetime:
-
-- Hour
-- Day
-- Month
-- Weekday
-- Rush Hour Indicator
-
-### Models Compared
-
-- Linear Regression
-- Decision Tree Regressor
-- Random Forest Regressor
-
-### Evaluation Metrics
-
-- Mean Squared Error (MSE)
-- R² Score
-
-The Random Forest model achieved the best performance and was selected for deployment.
+* **Total Records**: 48,204 raw records -> **48,187 unique records** (17 exact duplicate rows removed).
+* **Target Variable**: `traffic_volume` (Continuous, hourly vehicle count; Mean: 3259.8, Std: 1986.9, Min: 0, Max: 7280).
+* **Features**:
+  * Datetime: `date_time` (Hourly timestamps)
+  * Weather Features: `temp` (Kelvin), `rain_1h` (mm), `snow_1h` (mm), `clouds_all` (%), `weather_main`, `weather_description`
+  * Missing Values: `holiday` contains 48,126 missing entries (**99.87% missing**). Because it lacks complete temporal coverage, it is excluded from model feature sets.
 
 ---
 
-## 📊 Technology Stack
+## 📐 3. EDA & Statistical Analysis
 
-### Programming Language
+Rigorous exploratory and statistical analyses were performed (`analysis/statistical_analysis.py`) to quantify temporal patterns:
 
-- Python 3.x
+### Summary Statistics
+| Metric | Traffic Volume (vehicles/hr) |
+| :--- | :--- |
+| **Mean** | 3259.82 |
+| **Median** | 3380.00 |
+| **Std Dev** | 1986.94 |
+| **95% Confidence Interval for Mean** | [3242.10, 3277.55] |
+| **Skewness** | -0.0717 (Symmetric) |
+| **Kurtosis** | -1.1969 (Platykurtic / Bimodal distribution) |
 
-### Machine Learning
+### Hypothesis Testing Results
+1. **Rush Hour vs. Non-Rush Hour**:
+   * **Null Hypothesis ($H_0$)**: $\mu_{\text{rush}} = \mu_{\text{non-rush}}$
+   * **Alternative Hypothesis ($H_1$)**: $\mu_{\text{rush}} \neq \mu_{\text{non-rush}}$
+   * **Empirical Results**: Rush Mean = 4780.89 vs Non-Rush Mean = 2772.77.
+   * **Welch's $t$-statistic**: $127.18$, $p < 0.0001$.
+   * **Effect Size (Cohen's $d$)**: $1.1594$ (**Very Large Effect**).
 
-- Scikit-Learn
-- Pandas
-- NumPy
-- Joblib
+2. **Weekday vs. Weekend**:
+   * **Null Hypothesis ($H_0$)**: $\mu_{\text{weekday}} = \mu_{\text{weekend}}$
+   * **Alternative Hypothesis ($H_1$)**: $\mu_{\text{weekday}} \neq \mu_{\text{weekend}}$
+   * **Empirical Results**: Weekday Mean = 3519.82 vs Weekend Mean = 2060.03.
+   * **Welch's $t$-statistic**: $86.81$, $p < 0.0001$.
+   * **Effect Size (Cohen's $d$)**: $0.7712$ (**Large Effect**).
 
-### Visualization
+3. **Weather Condition Differences (ANOVA & Kruskal-Wallis)**:
+   * **ANOVA $F$-statistic**: $21.96$, $p < 0.0001$.
+   * **Kruskal-Wallis $H$-statistic**: $216.71$, $p < 0.0001$.
+   * *Interpretation*: Traffic volume exhibits statistically significant variance across major weather categories (e.g., Squall/Snow vs. Clear/Clouds).
 
-- Matplotlib
-
-### Web Framework
-
-- Streamlit
-
-### Database
-
-- SQLite
-
-### Security
-
-- bcrypt
-
----
-
-## 📂 Project Structure
-
-```
-Smart-Traffic-Volume-Prediction-System/
-│
-├── app.py
-├── Solution.ipynb
-├── model/
-├── dataset/
-├── images/
-├── users.db
-├── requirements.txt
-├── README.md
-└── assets/
-```
+*Note: All correlation and hypothesis testing results represent observational associations; causality is not inferred.*
 
 ---
 
-## ⚙️ Installation
+## 🗄️ 4. SQL Analytics Layer
 
-Clone the repository
+A production-grade SQLite analytical database (`traffic_analytics.db`) is automatically populated via `analysis.sql` and `analysis/sql_analysis.py`. It implements 9 relational views utilizing CTEs, window functions (`AVG() OVER`, `DENSE_RANK() OVER`), CASE expressions, and multi-level aggregations:
+
+1. `v_daily_traffic_summary`: Daily traffic volume aggregations, min, max, std dev.
+2. `v_hourly_traffic_summary`: Diurnal hourly profile across the entire multi-year timeline.
+3. `v_day_type_comparison`: Comparative metrics between weekdays and weekends.
+4. `v_rush_hour_summary`: Granular peak vs off-peak flow metrics.
+5. `v_monthly_traffic_trends`: Year-over-year monthly trends.
+6. `v_rolling_24h_traffic`: 24-hour moving averages and moving standard deviations using SQL window frame specifications (`ROWS BETWEEN 23 PRECEDING AND CURRENT ROW`).
+7. `v_peak_traffic_rankings`: Windows ranking (`DENSE_RANK()`) of the highest volume hours per year.
+8. `v_traffic_volume_buckets`: Volume distribution segmented into Low (<2000), Moderate (2000-5000), and Heavy (>=5000) flow buckets.
+9. `v_weather_impact_summary`: Traffic volume aggregations grouped by primary weather main category.
+
+---
+
+## ⚙️ 5. Feature Engineering
+
+### Production Model Features (5 Core Features)
+The production prediction pipeline (`saved_models/Random_Forest.pkl`) strictly uses 5 temporal features derived from `date_time`:
+* `hour`: Hour of day (0 to 23)
+* `day`: Day of month (1 to 31)
+* `month`: Month of year (1 to 12)
+* `weekday`: Day of week (0 = Monday, 6 = Sunday)
+* `is_rush`: Binary indicator (1 if hour in [7, 8, 9, 17, 18, 19], else 0)
+
+### Time-Series Forecasting Features
+For the demand forecasting module (`forecasting/forecasting.py`), strict chronological lag and rolling window features are engineered using `shift(1)` discipline to eliminate lookahead leakage:
+* `lag_1h`: Previous hour's traffic volume ($y_{t-1}$)
+* `lag_24h`: Same hour previous day's volume ($y_{t-24}$)
+* `lag_168h`: Same hour previous week's volume ($y_{t-168}$)
+* `rolling_mean_24h`: 24-hour moving average of past observations
+* `rolling_std_24h`: 24-hour moving standard deviation of past observations
+* `ewma_24h`: Exponentially weighted moving average ($\alpha = 2 / (24+1)$)
+
+---
+
+## ⏱️ 6. Time-Series Demand Forecasting
+
+To evaluate short-term traffic volume forecasting, a chronological 85/15 train/test split ($40,938$ train / $7,225$ test records) was executed without shuffling.
+
+### Empirical Forecasting Model Benchmarks
+
+| Model / Baseline | Features Used | MAE (veh/hr) | RMSE (veh/hr) | $R^2$ Score | Notes |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **Naive Prev-Hour Baseline** | `lag_1h` | 485.95 | 740.42 | 0.8608 | Simple persistence baseline ($y_t = y_{t-1}$) |
+| **Naive Same-Hour Prev-Day Baseline** | `lag_24h` | 1563.62 | 2208.58 | -0.2386 | Fails during day-of-week pattern shifts |
+| ⭐ **ML Lag Random Forest** | Lags + Rolling + Calendar | **158.14** | **240.38** | **0.9853** | **Best Forecasting Performance** |
+
+*Key Insight*: Incorporating past observed traffic lags reduces forecast MAE by **67.4%** compared to the naive persistence baseline.
+
+---
+
+## 🧪 7. Model Evaluation & Time-Aware Validation
+
+We clearly distinguish between random holdout validation, chronological validation, and autoregressive forecasting:
+
+| Evaluation Strategy | Model | Features | Split Type | MAE | RMSE | $R^2$ Score |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| **Random Holdout Split** | Random Forest | 5 Core Calendar | 80/20 Random | 442.27 | 641.56 | 0.8953 |
+| **Chronological Split** | Linear Regression | 5 Core Calendar | 85/15 Time-Sorted | 1472.93 | 1756.24 | 0.2185 |
+| **Chronological Split** | Decision Tree | 5 Core Calendar | 85/15 Time-Sorted | 512.92 | 760.31 | 0.8533 |
+| ⭐ **Chronological Split** | Random Forest | 5 Core Calendar | 85/15 Time-Sorted | **494.61** | **736.21** | **0.8624** |
+| **Forecasting Split** | ML Lag RF Model | Lags + Calendar | 85/15 Time-Sorted | **158.14** | **240.38** | **0.9853** |
+
+*Note: In compliance with project guidelines, $R^2$ represents the coefficient of determination (proportion of variance explained) and is never referred to as "accuracy".*
+
+---
+
+## 🔍 8. Operational Error Analysis
+
+Segmented error analysis (`analysis/error_analysis.py`) dissects model residuals to identify operational failure modes:
+
+### Error Breakdown by Volume Bucket
+| Volume Bucket | Range (veh/hr) | Sample Count | MAE | RMSE | Mean Bias Error | Bias Interpretation |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| **Low Volume** | $< 2000$ | 2,752 | 344.60 | 467.40 | -94.15 | Overpredicting off-peak volume |
+| **Moderate Volume** | $2000 - 4999$ | 2,168 | 514.85 | 694.75 | -41.32 | Slight overprediction |
+| **Heavy Volume** | $\ge 5000$ | 2,305 | 655.43 | 985.34 | **+182.40** | **Underpredicting peak spikes** |
+
+### Key Operational Observations
+1. Heavy Traffic (≥ 5000 veh/hr): MAE = 655.43, RMSE = 985.34, Mean Bias = +182.40 veh/hr, indicating underprediction during high-volume periods.
+2. **Nighttime Off-Peak Smoothing**: During low-volume nighttime hours, predictions carry a slight negative bias (-94.15 veh/hr), overestimating minimum baseline traffic.
+
+---
+
+## 🛡️ 9. Deployment & Monitoring System
+
+The system includes a dedicated MLOps drift monitoring subsystem (`monitoring/monitor.py`):
+
+* **Feature & Prediction Drift (PSI)**: Evaluates Population Stability Index using numerical binning:
+  * $\text{PSI} < 0.10$: Stable / No Shift
+  * $0.10 \le \text{PSI} < 0.25$: Moderate Distribution Shift
+  * $\text{PSI} \ge 0.25$: Significant Distribution Drift
+  * *Reference Context*: PSI thresholds of 0.10 and 0.25 are commonly used heuristic reference points for interpreting distribution shift; thresholds are configurable and should be calibrated to the specific application.
+* **Performance Monitoring Threshold**: An RMSE monitoring threshold of **550 vehicles/hour** triggers automated system alerts:
+  * *Reference Context*: This is a project-specific monitoring threshold derived from historical validation performance.
+
+---
+
+## 🧪 10. Automated Testing & Verification
+
+The repository contains a test suite covering both MLOps monitoring and analytical pipeline modules:
 
 ```bash
-git clone https://github.com/Sarath-Patti/Smart-Traffic-Volume-Prediction-System.git
+# Run all automated unit tests
+python -m unittest discover tests
+
+# Output:
+# ----------------------------------------------------------------------
+# Ran 13 tests in 0.45s
+# OK
 ```
 
-Move into the project
-
-```bash
-cd Smart-Traffic-Volume-Prediction-System
-```
-
-Create virtual environment
-
-```bash
-python -m venv venv
-```
-
-Activate virtual environment
-
-### Windows
-
-```bash
-venv\Scripts\activate
-```
-
-### macOS/Linux
-
-```bash
-source venv/bin/activate
-```
-
-Install dependencies
-
-```bash
-pip install -r requirements.txt
-```
+### Verified Test Components
+* `test_monitoring.py` (7 tests): Unit tests for PSI computation, feature drift, prediction drift, performance monitoring, alert triggers, and logging.
+* `test_analysis.py` (6 tests): Unit tests for SQL view execution, statistical hypothesis calculations, chronological lag generation without leakage, naive baselines, forecasting model evaluation, error segmentation, and invalid inputs.
 
 ---
 
-## ▶️ Run the Application
+## 🚀 11. Reproducible Execution
 
+Run the unified analytical entry point to regenerate all SQL databases, statistical reports, forecasting comparisons, and operational error breakdowns:
+
+```bash
+python run_analysis.py
+```
+
+Generated outputs will be cleanly populated in:
+```
+results/
+├── sql/                   # View query CSV exports
+├── statistics/            # Descriptive & hypothesis test metrics
+├── forecasting/           # Naive vs ML forecasting model metrics
+└── error_analysis/        # Segmented MAE/RMSE/Bias metrics
+```
+
+To start the interactive Streamlit Web Application:
 ```bash
 streamlit run app.py
 ```
 
-The application will open in your browser.
-
 ---
 
-## 📸 Application Screens
+## ⚠️ 12. Limitations & Future Improvements
 
-- Login Page
-- Registration Page
-- Prediction Dashboard
-- Analytics Dashboard
-- Batch Prediction
-- Feature Importance Graphs
+### Limitations
+1. **Lack of Spatial Dimensions**: The dataset contains data for a single highway corridor (I-94 westbound) without explicit road segment or geographic spatial features.
+2. **Missing Holiday Data**: The `holiday` column is 99.87% missing and cannot be reliably used as a calendar feature.
+3. **Peak Spike Compression**: Tree regressors tend to smooth out extreme prediction values during unobserved traffic surges.
 
-*(Add screenshots inside an `images/` folder and update this section.)*
-
----
-
-## 📈 Model Performance
-
-| Model | Performance |
-|--------|------------|
-| Linear Regression | Baseline |
-| Decision Tree | Improved |
-| ⭐ Random Forest | Best Accuracy |
-
----
-
-## 🔒 Authentication
-
-The application includes:
-
-- User Registration
-- Secure Login
-- Password Hashing using bcrypt
-- SQLite Database Storage
-
----
-
-## 📁 Batch Prediction
-
-Users can upload a CSV file containing multiple traffic records and download the predicted traffic volumes.
-
----
-
-## 🎯 Applications
-
-- Smart Cities
-- Traffic Management
-- Urban Planning
-- Highway Monitoring
-- Transportation Analytics
-- Intelligent Transportation Systems (ITS)
-
----
-
-## 🚀 Future Improvements
-
-- Real-Time Traffic Prediction
-- Weather API Integration
-- Google Maps Integration
-- Deep Learning Models (LSTM)
-- XGBoost / LightGBM
-- Cloud Deployment
-- Docker Support
-- REST API
-- Mobile Application
-
----
-
-## 📚 References
-
-- Scikit-Learn Documentation
-- Streamlit Documentation
-- Random Forest Research Paper
-- Pandas Documentation
+### Future Improvements
+1. **Multi-Corridor Spatial Graph Networks**: Integrate Spatial-Temporal Graph Convolutional Networks (ST-GCN) when multi-sensor spatial data becomes available.
+2. **Automated Retraining Trigger**: Connect the Streamlit monitoring alert manager to an automated retraining DAG (e.g., Airflow / Prefect) upon PSI breach.
+3. **Real-time API Ingestion**: Integrate live weather and traffic API streams for real-time 1-hour ahead forecasting.
 
 ---
 
 ## 👨‍💻 Author
 
-**Sarath Patti**
-
-M.Tech, Computer Science & Engineering
-
-National Institute of Technology Rourkela
-
-GitHub: https://github.com/Sarath-Patti
-
----
-
-## ⭐ Support
-
-If you found this project useful, consider giving it a ⭐ on GitHub!
+**Sarath Patti**  
+M.Tech, Computer Science & Engineering  
+National Institute of Technology Rourkela  
+GitHub: [Sarath-Patti](https://github.com/Sarath-Patti)

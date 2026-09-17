@@ -1,0 +1,3 @@
+rush_status,record_count,avg_traffic_volume,min_traffic_volume,max_traffic_volume
+Non-Rush Hour,36137,2869.53,0,7280
+Rush Hour,12050,4429.45,0,7260
