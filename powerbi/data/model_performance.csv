@@ -1,0 +1,4 @@
+evaluation_strategy,model_name,features_used,train_test_split,mae,rmse,r2_score
+Chronological Holdout (5 Calendar Features),Random Forest Regressor (Production Model),"hour, day, month, weekday, is_rush",85/15 Time-Sorted,245.55,446.43,0.9494
+Chronological Forecasting (Lags + Rolling),ML Lag Random Forest Model,"lags (1h, 24h, 168h), rolling (mean, std, ewma), calendar",85/15 Time-Sorted,158.14,240.38,0.9853
+Chronological Forecasting (Naive Baseline),Naive Prev-Hour Persistence (Lag 1h),lag_1h,85/15 Time-Sorted,485.95,740.42,0.8608

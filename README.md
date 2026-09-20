@@ -1,6 +1,6 @@
 # 🚦 Smart Traffic Volume Prediction & Analytics System
 
-An end-to-end Data Science and Machine Learning engineering project built for production-grade traffic volume prediction, time-series forecasting, statistical hypothesis testing, SQL relational analytics, model drift monitoring, operational error breakdown, and business decision analysis.
+An end-to-end Data Science and Machine Learning engineering project built for production-grade traffic volume prediction, time-series forecasting, statistical hypothesis testing, SQL relational analytics, model drift monitoring, operational error breakdown, business decision analysis, and Power BI reporting.
 
 ---
 
@@ -16,6 +16,7 @@ This project delivers a multi-stage Data Science platform that covers the full l
 5. **Model Monitoring**: Real-time distribution shift (Population Stability Index - PSI) and performance drift detection.
 6. **Operational Error Breakdown**: Segmented residual analysis to identify structural prediction bias across peak and off-peak periods.
 7. **Business & Decision Analysis**: Empirical business KPIs and decision Q&A report answering operational management questions.
+8. **Power BI Analytics Layer**: Star-schema data layer, export pipeline, data validation suite, DAX measures, and dashboard build specifications.
 
 ---
 
@@ -177,17 +178,37 @@ The business analysis engine (`analysis/business_analysis.py`) translates empiri
 * **Peak Demand Hours**: `17:00 (4624 veh/hr), 16:00 (4546 veh/hr), 08:00 (4473 veh/hr)`
 * **Forecast MAE Error Reduction**: `-67.46%` error reduction with short-term lags vs persistence baseline.
 
-### Answers to Operational Questions
-* **When is traffic demand highest?**: Weekday evening (16:00-18:00) and morning (07:00-09:00) rush hours, peaking in August and October.
-* **Which periods present the greatest forecasting difficulty?**: High-volume peak hours (07:00-08:00, 16:00-17:00) and heavy flow ($\ge 5000$ veh/hr) exhibit highest MAE.
-* **Does rush-hour demand differ significantly from non-rush periods?**: Yes ($4,780.89$ vs $2,752.12$ veh/hr, $p < 0.0001$, Cohen's $d = 1.1594$, Very Large Effect).
-* **Does weekday demand differ significantly from weekend demand?**: Yes ($3,519.82$ vs $2,608.20$ veh/hr, $p < 0.0001$, Cohen's $d = 0.7712$, Large Effect).
-* **When does the model underpredict?**: During heavy volume surges ($\ge 5000$ veh/hr), mean bias is $+182.40$ veh/hr.
-* **Which periods warrant closer operational monitoring?**: Peak weekday commuter windows during late summer/autumn.
+---
+
+## 📊 10. Power BI Analytics Layer
+
+The project includes a dedicated Power BI analytics module (`powerbi/`) complete with an automated data export pipeline (`powerbi/export_powerbi_data.py`), data validation suite (`powerbi/validate_data.py`), star-schema relationship specifications, and dynamic DAX measures (`powerbi/measures.md`).
+
+### Export Datasets (`powerbi/data/`)
+Run `python3 powerbi/export_powerbi_data.py` to generate 10 clean, validated CSV datasets:
+1. `traffic_hourly.csv` (48,187 rows): Primary hourly traffic fact table.
+2. `traffic_daily.csv` (1,860 rows): Aggregated daily throughput table.
+3. `traffic_monthly.csv` (63 rows): Monthly throughput tracking.
+4. `demand_forecast.csv` (7,225 rows): Actuals vs 1-hour ahead forecasting predictions.
+5. `model_performance.csv` (3 rows): Architecture evaluation metrics (MAE, RMSE, $R^2$).
+6. `error_analysis.csv` (36 rows): Segmented residual bias breakdown.
+7. `business_kpis.csv` (24 rows): Business & operational demand KPIs.
+8. `monitoring_metrics.csv` (6 rows): Feature drift (PSI) and RMSE alert statuses.
+9. `dim_date.csv` (2,190 rows): Date dimension table.
+10. `dim_time.csv` (24 rows): Time dimension table.
+
+### 5-Page Dashboard Specification
+* **Page 1: Traffic Overview** — Throughput baselines, diurnal profiles, weekday vs. weekend shifts.
+* **Page 2: Demand & Forecast** — Actual vs. forecast time-series, MAE/RMSE metrics, error reduction vs. naive baseline.
+* **Page 3: Model Performance** — Model comparison, residual bias by hour and volume bucket.
+* **Page 4: Business Insights** — Executive demand Q&A, peak volume hours, capacity spike warnings.
+* **Page 5: MLOps Drift Monitoring** — Feature PSI metrics, monitored RMSE vs. 550 threshold alert status.
+
+*Environment Note: Power BI Desktop is a Windows-only desktop application. All Power BI datasets, star-schema relationships, DAX measures (`powerbi/measures.md`), and dashboard visual specifications (`powerbi/dashboard_spec.md`) are generated and validated so the report can be recreated directly in Power BI Desktop.*
 
 ---
 
-## 🛡️ 10. Deployment & Monitoring System
+## 🛡️ 11. Deployment & Monitoring System
 
 The system includes a dedicated MLOps drift monitoring subsystem (`monitoring/monitor.py`):
 
@@ -201,7 +222,7 @@ The system includes a dedicated MLOps drift monitoring subsystem (`monitoring/mo
 
 ---
 
-## 🧪 11. Automated Testing & Verification
+## 🧪 12. Automated Testing & Verification
 
 The repository contains an automated test suite covering MLOps monitoring and analytical pipeline modules:
 
@@ -221,7 +242,7 @@ python -m unittest discover tests
 
 ---
 
-## 🚀 12. Reproducible Execution
+## 🚀 13. Reproducible Execution
 
 Run the unified analytical entry point to regenerate all SQL databases, statistical reports, forecasting comparisons, operational error breakdowns, and business decision summaries:
 
@@ -246,7 +267,7 @@ streamlit run app.py
 
 ---
 
-## ⚠️ 13. Limitations & Future Improvements
+## ⚠️ 14. Limitations & Future Improvements
 
 ### Limitations
 1. **Lack of Spatial Dimensions**: The dataset contains data for a single highway corridor (I-94 westbound) without explicit road segment or geographic spatial features.

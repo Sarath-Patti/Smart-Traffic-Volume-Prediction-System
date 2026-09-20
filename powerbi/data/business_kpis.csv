@@ -1,0 +1,25 @@
+kpi_category,kpi_name,kpi_value
+Demand Profile,Average Traffic Volume (veh/hr),3259.62
+Demand Profile,Median Traffic Volume (veh/hr),3379.0
+Demand Profile,Peak Single-Hour Volume (veh/hr),7280
+Demand Profile,Top Peak Demand Hours,"16:00 (5664 veh/hr), 17:00 (5310 veh/hr), 15:00 (5240 veh/hr)"
+Demand Profile,Rush-Hour Mean Volume (veh/hr),4429.45
+Demand Profile,Non-Rush-Hour Mean Volume (veh/hr),2869.53
+Demand Profile,Rush vs Non-Rush Demand Difference,+1559.92 veh/hr (+54.36%)
+Demand Profile,Weekday Mean Volume (veh/hr),3533.29
+Demand Profile,Weekend Mean Volume (veh/hr),2570.7
+Demand Profile,Weekday vs Weekend Demand Difference,+962.59 veh/hr (+37.44%)
+Demand Profile,Highest Demand Months,"Jun (3417 veh/hr), Aug (3394 veh/hr), Oct (3390 veh/hr)"
+Demand Profile,Low-Volume Hours (<2000) Count (%),15216 (31.58%)
+Demand Profile,Moderate-Volume Hours (2000-4999) Count (%),21618 (44.86%)
+Demand Profile,Heavy-Volume Hours (>=5000) Count (%),11353 (23.56%)
+Model Performance & Bias,Chronological Holdout Model MAE,245.55
+Model Performance & Bias,Chronological Holdout Model RMSE,446.43
+Model Performance & Bias,Forecasting Model Accuracy (Short-Term Lags),"ML Lag RF MAE: 158.14 veh/hr (vs Naive Prev-Hour MAE: 485.95 veh/hr, -67.46% error reduction)"
+Model Performance & Bias,Highest Error Hours,"16:00 (MAE 476.8), 17:00 (MAE 440.8), 07:00 (MAE 347.6)"
+Model Performance & Bias,Underpredictions Count (%),3819 (52.83%)
+Model Performance & Bias,Overpredictions Count (%),3410 (47.17%)
+Model Performance & Bias,Overall Mean Bias Error,-21.45 veh/hr
+Model Performance & Bias,Heavy-Volume (>=5000) MAE,257.16
+Model Performance & Bias,Heavy-Volume (>=5000) RMSE,330.43
+Model Performance & Bias,Heavy-Volume Mean Bias Error,+159.21 veh/hr (Positive bias indicates underprediction during peak surges)

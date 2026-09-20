@@ -1,0 +1,7 @@
+metric_type,feature_name,reference_mean,current_mean,psi_score,drift_status,rmse_threshold,monitored_rmse,alert_triggered,alert_message
+Feature Drift (PSI),hour,11.41,11.42,0.0036,No Drift,550.0,445.91,False,Monitored RMSE (445.91) is within acceptable threshold (550.00).
+Feature Drift (PSI),day,15.7,15.85,0.015,No Drift,550.0,445.91,False,Monitored RMSE (445.91) is within acceptable threshold (550.00).
+Feature Drift (PSI),month,6.69,5.47,2.4718,Significant Drift,550.0,445.91,False,Monitored RMSE (445.91) is within acceptable threshold (550.00).
+Feature Drift (PSI),weekday,2.98,3.05,0.0059,No Drift,550.0,445.91,False,Monitored RMSE (445.91) is within acceptable threshold (550.00).
+Feature Drift (PSI),is_rush,0.25,0.24,0.0,No Drift,550.0,445.91,False,Monitored RMSE (445.91) is within acceptable threshold (550.00).
+Prediction Drift (PSI),traffic_volume_prediction,3251.37,3316.74,0.0113,Stable,550.0,445.91,False,Monitored RMSE (445.91) is within acceptable threshold (550.00).
