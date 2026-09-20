@@ -333,8 +333,8 @@ def main_app():
         st.subheader("📈 Data Science & Advanced Analytics")
         st.info("ℹ️ **Advanced DS Module**: Explore SQL analytical queries, empirical statistical tests, time-series forecasting benchmarks, and segmented error analysis.")
 
-        sub_tab1, sub_tab2, sub_tab3, sub_tab4 = st.tabs([
-            "🗄️ SQL Analytics", "📐 Statistical Analysis", "⏱️ Demand Forecasting", "🔍 Operational Error Analysis"
+        sub_tab1, sub_tab2, sub_tab3, sub_tab4, sub_tab5 = st.tabs([
+            "🗄️ SQL Analytics", "📐 Statistical Hypothesis Testing", "⏱️ Demand Forecasting", "🔍 Operational Error Analysis", "💼 Business KPIs & Decision Analysis"
         ])
 
         with sub_tab1:
@@ -363,31 +363,46 @@ def main_app():
         with sub_tab2:
             st.markdown("### 📐 Empirical Statistical Hypothesis Testing")
             try:
-                from analysis.statistical_analysis import StatisticalAnalyzer
+                from analysis.statistical_analysis import test_rush_vs_non_rush, test_weekday_vs_weekend, calculate_correlations_with_pvalues
                 df_data = pd.read_csv("datafile.csv").drop_duplicates()
-                analyzer = StatisticalAnalyzer(df_data)
 
                 col1, col2 = st.columns(2)
                 with col1:
                     st.markdown("#### 1. Rush vs Non-Rush Hour Test")
-                    rush_res = analyzer.test_rush_vs_non_rush()
-                    st.write(f"**Rush Mean Volume**: {rush_res['rush_mean']:.2f}")
-                    st.write(f"**Non-Rush Mean Volume**: {rush_res['non_rush_mean']:.2f}")
-                    st.write(f"**Welch's t-statistic**: {rush_res['t_statistic']:.4f}")
-                    st.write(f"**p-value**: {rush_res['p_value']:.4e}")
-                    st.write(f"**Cohen's d (Effect Size)**: {rush_res['cohen_d']:.4f}")
+                    rush_res = test_rush_vs_non_rush(df_data)
+                    cohen_rush = rush_res["Cohen's d Effect Size"]
+                    st.write(f"**Rush Sample (N1)**: {rush_res['Rush Hour Sample Count (N1)']}")
+                    st.write(f"**Rush Mean Volume**: {rush_res['Rush Hour Mean Volume']:.2f}")
+                    st.write(f"**Rush Median Volume**: {rush_res['Rush Hour Median Volume']:.2f}")
+                    st.write(f"**Rush 95% CI**: `{rush_res['Rush Hour Mean 95% CI']}`")
+                    st.write(f"**Non-Rush Sample (N2)**: {rush_res['Non-Rush Hour Sample Count (N2)']}")
+                    st.write(f"**Non-Rush Mean Volume**: {rush_res['Non-Rush Hour Mean Volume']:.2f}")
+                    st.write(f"**Non-Rush Median Volume**: {rush_res['Non-Rush Hour Median Volume']:.2f}")
+                    st.write(f"**Non-Rush 95% CI**: `{rush_res['Non-Rush Hour Mean 95% CI']}`")
+                    st.write(f"**Welch's t-statistic**: {rush_res['Welch t-statistic']}")
+                    st.write(f"**p-value**: {rush_res['Welch t p-value']}")
+                    st.write(f"**Cohen's d (Effect Size)**: {cohen_rush}")
+                    st.write(f"**Rank-Biserial Correlation**: {rush_res['Rank-Biserial Correlation (r_rb)']}")
 
                 with col2:
                     st.markdown("#### 2. Weekday vs Weekend Test")
-                    day_res = analyzer.test_weekday_vs_weekend()
-                    st.write(f"**Weekday Mean Volume**: {day_res['weekday_mean']:.2f}")
-                    st.write(f"**Weekend Mean Volume**: {day_res['weekend_mean']:.2f}")
-                    st.write(f"**Welch's t-statistic**: {day_res['t_statistic']:.4f}")
-                    st.write(f"**p-value**: {day_res['p_value']:.4e}")
-                    st.write(f"**Cohen's d (Effect Size)**: {day_res['cohen_d']:.4f}")
+                    day_res = test_weekday_vs_weekend(df_data)
+                    cohen_day = day_res["Cohen's d Effect Size"]
+                    st.write(f"**Weekday Sample (N1)**: {day_res['Weekday Sample Count (N1)']}")
+                    st.write(f"**Weekday Mean Volume**: {day_res['Weekday Mean Volume']:.2f}")
+                    st.write(f"**Weekday Median Volume**: {day_res['Weekday Median Volume']:.2f}")
+                    st.write(f"**Weekday 95% CI**: `{day_res['Weekday Mean 95% CI']}`")
+                    st.write(f"**Weekend Sample (N2)**: {day_res['Weekend Sample Count (N2)']}")
+                    st.write(f"**Weekend Mean Volume**: {day_res['Weekend Mean Volume']:.2f}")
+                    st.write(f"**Weekend Median Volume**: {day_res['Weekend Median Volume']:.2f}")
+                    st.write(f"**Weekend 95% CI**: `{day_res['Weekend Mean 95% CI']}`")
+                    st.write(f"**Welch's t-statistic**: {day_res['Welch t-statistic']}")
+                    st.write(f"**p-value**: {day_res['Welch t p-value']}")
+                    st.write(f"**Cohen's d (Effect Size)**: {cohen_day}")
+                    st.write(f"**Rank-Biserial Correlation**: {day_res['Rank-Biserial Correlation (r_rb)']}")
 
                 st.markdown("#### 3. Correlation with Target (Traffic Volume)")
-                corr_df = pd.DataFrame(analyzer.run_correlation_analysis())
+                corr_df = calculate_correlations_with_pvalues(df_data)
                 st.dataframe(corr_df, use_container_width=True)
 
             except Exception as e:
@@ -425,6 +440,45 @@ def main_app():
                     st.warning("Error analysis results missing. Run `python run_analysis.py` to generate.")
             except Exception as e:
                 st.error(f"Error loading operational error analysis: {e}")
+
+        with sub_tab5:
+            st.markdown("### 💼 Business KPIs & Operational Decision Analysis")
+            st.caption("Reproducible operational metrics, demand profile KPIs, and decision analysis answering key operational questions.")
+            try:
+                from analysis.business_analysis import BusinessDecisionAnalyzer
+                analyzer = BusinessDecisionAnalyzer(csv_path="datafile.csv", model_path="saved_models/Random_Forest.pkl")
+                kpis = analyzer.generate_summary_report()
+                
+                d_kpis = kpis["demand_kpis"]
+                m_kpis = kpis["model_kpis"]
+
+                st.markdown("#### 1. Demand Profile KPIs")
+                c1, c2, c3 = st.columns(3)
+                with c1:
+                    st.metric("Average Traffic Volume", f"{d_kpis['Average Traffic Volume (veh/hr)']} veh/hr")
+                    st.metric("Median Traffic Volume", f"{d_kpis['Median Traffic Volume (veh/hr)']} veh/hr")
+                with c2:
+                    st.metric("Peak Hourly Volume", f"{d_kpis['Peak Single-Hour Volume (veh/hr)']} veh/hr")
+                    st.metric("Rush vs Non-Rush Shift", d_kpis["Rush vs Non-Rush Demand Difference"])
+                with c3:
+                    st.metric("Weekday vs Weekend Shift", d_kpis["Weekday vs Weekend Demand Difference"])
+                    st.write(f"**Top Peak Hours**: {d_kpis['Top Peak Demand Hours']}")
+
+                st.markdown("#### 2. Operational Error & Model Bias KPIs")
+                mc1, mc2 = st.columns(2)
+                with mc1:
+                    st.metric("Holdout Model MAE", f"{m_kpis['Chronological Holdout Model MAE']} veh/hr")
+                    st.metric("Heavy Volume (>=5000) MAE", f"{m_kpis['Heavy-Volume (>=5000) MAE']} veh/hr")
+                with mc2:
+                    st.metric("Overall Mean Bias Error", m_kpis["Overall Mean Bias Error"])
+                    st.metric("Heavy Volume Mean Bias", m_kpis["Heavy-Volume Mean Bias Error"])
+
+                st.markdown("#### 3. Operational Decision Q&A Summary")
+                if os.path.exists("results/business/business_summary.md"):
+                    with open("results/business/business_summary.md", "r") as f:
+                        st.markdown(f.read())
+            except Exception as e:
+                st.error(f"Error loading business decision analysis: {e}")
 
 # ---------- ROUTING ----------
 if not st.session_state.logged_in:

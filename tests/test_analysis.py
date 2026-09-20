@@ -1,7 +1,7 @@
 """
 Automated Test Suite for Data Science Analysis Extension
 Covers SQL analytics, statistical analysis, lag/rolling feature generation,
-leakage prevention, forecasting baselines, and error segmentation.
+leakage prevention, forecasting baselines, error segmentation, and business KPIs.
 """
 
 import unittest
@@ -21,6 +21,7 @@ from analysis.statistical_analysis import (
 )
 from forecasting.forecasting import create_forecasting_features, evaluate_forecasting_models
 from analysis.error_analysis import SegmentedErrorAnalyzer
+from analysis.business_analysis import BusinessDecisionAnalyzer
 
 
 class TestDataScienceAnalysisSuite(unittest.TestCase):
@@ -124,6 +125,40 @@ class TestDataScienceAnalysisSuite(unittest.TestCase):
         empty_df = pd.DataFrame()
         with self.assertRaises(Exception):
             get_descriptive_stats(empty_df)
+
+    def test_7_business_decision_analysis(self):
+        """Test business decision analyzer KPIs, demand profiles, and markdown report creation."""
+        analyzer = BusinessDecisionAnalyzer(csv_path=self.csv_path, model_path="saved_models/Random_Forest.pkl")
+        res = analyzer.generate_summary_report(output_dir="results/business")
+
+        self.assertIn("demand_kpis", res)
+        self.assertIn("model_kpis", res)
+
+        demand = res["demand_kpis"]
+        self.assertIn("Average Traffic Volume (veh/hr)", demand)
+        self.assertIn("Peak Single-Hour Volume (veh/hr)", demand)
+        self.assertGreater(demand["Average Traffic Volume (veh/hr)"], 0)
+
+        model_kpis = res["model_kpis"]
+        self.assertIn("Chronological Holdout Model MAE", model_kpis)
+        self.assertIn("Heavy-Volume Mean Bias Error", model_kpis)
+
+        self.assertTrue(os.path.exists("results/business/business_kpis.csv"))
+        self.assertTrue(os.path.exists("results/business/business_summary.md"))
+
+    def test_8_hypothesis_test_details(self):
+        """Test detailed group statistics, CIs, and effect sizes in hypothesis tests."""
+        rush_res = test_rush_vs_non_rush(self.df)
+        self.assertIn("Rush Hour Sample Count (N1)", rush_res)
+        self.assertIn("Rush Hour Median Volume", rush_res)
+        self.assertIn("Rush Hour Mean 95% CI", rush_res)
+        self.assertIn("Rank-Biserial Correlation (r_rb)", rush_res)
+
+        day_res = test_weekday_vs_weekend(self.df)
+        self.assertIn("Weekday Sample Count (N1)", day_res)
+        self.assertIn("Weekday Median Volume", day_res)
+        self.assertIn("Weekday Mean 95% CI", day_res)
+        self.assertIn("Rank-Biserial Correlation (r_rb)", day_res)
 
 
 if __name__ == "__main__":
