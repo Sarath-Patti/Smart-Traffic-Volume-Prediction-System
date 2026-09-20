@@ -117,8 +117,8 @@ def main_app():
 
     st.markdown("### Smart traffic Volume prediction using Machine Learning 🚀")
 
-    tab1, tab2, tab3, tab4, tab5 = st.tabs([
-        "🔮 Prediction", "📊 Analytics", "📁 Batch", "🛡️ Monitoring", "📈 DS Analysis"
+    tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs([
+        "🔮 Prediction", "📊 Analytics", "📁 Batch", "🛡️ Monitoring", "📈 DS Analysis", "🚦 Traffic Intelligence"
     ])
 
     # ===================== TAB 1 =====================
@@ -479,6 +479,14 @@ def main_app():
                         st.markdown(f.read())
             except Exception as e:
                 st.error(f"Error loading business decision analysis: {e}")
+
+    # ===================== TAB 6 =====================
+    with tab6:
+        try:
+            from dashboard.renderers import render_traffic_intelligence_dashboard
+            render_traffic_intelligence_dashboard()
+        except Exception as e:
+            st.error(f"Error rendering Traffic Intelligence Dashboard: {e}")
 
 # ---------- ROUTING ----------
 if not st.session_state.logged_in:
